@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Registrations | Student</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <style>
+    body { background: #f5f7fa; font-family: 'Segoe UI', sans-serif; }
+    header { background: #343a40; color: white; padding: 10px; }
+    nav a { color: white; margin-right: 15px; text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
+    .card img { height: 180px; object-fit: cover; }
+  </style>
+</head>
+<body>
+
+<header class="d-flex justify-content-between align-items-center">
+  <h1>📌 My Registrations</h1>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="my_registration.html">My Registrations</a>
+    <a href="#" id="logoutLink">Logout</a>
+  </nav>
+</header>
+
+<main class="container mt-4">
+  <h2>🎟 Registered Events</h2>
+  <div id="myEventsList" class="row mt-3"></div>
+</main>
+
+<script>
+// Ensure student is logged in
+const role = localStorage.getItem("role");
+const userEmail = localStorage.getItem("userEmail");
+if (role !== "user") {
+  alert("Please login as a student first!");
+  window.location.href = "login.html";
+}
+
+// Load all events and registrations
+let events = JSON.parse(localStorage.getItem("events")) || [];
+let registrations = JSON.parse(localStorage.getItem("registrations")) || [];
+
+// Get this student's registrations
+let myRegs = registrations.filter(r => r.email === userEmail);
+
+// Render registered events
+function renderMyEvents() {
+  const container = document.getElementById("myEventsList");
+  container.innerHTML = "";
+
+  if (myRegs.length === 0) {
+    container.innerHTML = "<p>You have not registered for any events yet.</p>";
+    return;
+  }
+
+  myRegs.forEach(reg => {
+    const event = events.find(e => e.title === reg.event);
+    if (event) {
+      const card = document.createElement("div");
+      card.className = "col-md-4 mb-3";
+      card.innerHTML = `
+        <div class="card shadow-sm">
+          <img src="${event.imageUrl || 'https://via.placeholder.com/300x180'}" class="card-img-top" alt="${event.title}">
+          <div class="card-body">
+            <h5 class="card-title">${event.title}</h5>
+            <p class="card-text">${event.description}</p>
+            <p class="text-muted">📅 ${event.date}</p>
+            <p class="text-success">✔ Registered</p>
+          </div>
+        </div>
+      `;
+      container.appendChild(card);
+    }
+  });
+}
+
+// Logout
+document.getElementById("logoutLink").addEventListener("click", function(e) {
+  e.preventDefault();
+  localStorage.clear();
+  window.location.href = "login.html";
+});
+
+// Initial load
+renderMyEvents();
+</script>
+
+</body>
+</html>
+
+

@@ -1,0 +1,397 @@
+<!--<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event Registration | Club Portal</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #43cea2, #185a9d);
+  min-height: 100vh;
+}
+.navbar {
+  background: rgba(255, 255, 255, 0.9);
+}
+.nav-link {
+  font-weight: bold;
+}
+.container {
+  padding-top: 20px;
+}
+form {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+}
+button {
+  background: linear-gradient(90deg, #43cea2, #185a9d);
+  border: none;
+  padding: 10px 15px;
+  color: white;
+  border-radius: 5px;
+}
+button:hover {
+  opacity: 0.9;
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">🎉 Club Portal</a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="my_registrations.html">My Registrations</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" id="logoutLink">Logout</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <h2>Register for Event</h2>
+  <form id="memberForm">
+    <input type="text" id="memberName" placeholder="Full Name" class="form-control mb-2" required>
+    <input type="email" id="memberEmail" placeholder="Email Address" class="form-control mb-2" required>
+    <input type="text" id="eventName" placeholder="Event Name" class="form-control mb-2" readonly required>
+    <button type="submit"><i class="fas fa-check"></i> Register</button>
+  </form>
+  <p id="successMsg" class="mt-2 text-white"></p>
+
+  <section id="listSection" style="display:none;">
+    <h2>📋 Registered Students</h2>
+    <button onclick="exportCSV()"><i class="fas fa-download"></i> Export CSV</button>
+    <ul id="memberList"></ul>
+  </section>
+</div>
+
+<script>
+const role = localStorage.getItem("role") || "user";
+const eventName = new URLSearchParams(window.location.search).get("event");
+
+if (!role) {
+  window.location.href = "login.html";
+}
+
+if (eventName) document.getElementById("eventName").value = eventName;
+
+const formSection = document.getElementById("memberForm");
+const listSection = document.getElementById("listSection");
+let registrations = JSON.parse(localStorage.getItem("registrations")) || [];
+
+if (role === "admin") {
+  formSection.style.display = "none";
+  listSection.style.display = "block";
+  renderMembers();
+}
+
+function registerStudent(e) {
+  e.preventDefault();
+  const name = document.getElementById("memberName").value;
+  const email = document.getElementById("memberEmail").value;
+  const event = document.getElementById("eventName").value;
+
+  registrations.push({ name, email, event });
+  localStorage.setItem("registrations", JSON.stringify(registrations));
+
+  document.getElementById("successMsg").textContent = `✅ ${name}, you are registered for ${event}`;
+  e.target.reset();
+}
+
+function renderMembers() {
+  const list = document.getElementById("memberList");
+  list.innerHTML = "";
+  if (registrations.length === 0) {
+    list.innerHTML = "<p>No students registered yet.</p>";
+    return;
+  }
+  registrations.forEach((r, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <strong>${r.name}</strong> (${r.email}) → ${r.event}
+      <button onclick="deleteRegistration(${i})" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> Delete</button>
+    `;
+    list.appendChild(li);
+  });
+}
+
+function deleteRegistration(index) {
+  if (confirm("Are you sure you want to delete this registration?")) {
+    registrations.splice(index, 1);
+    localStorage.setItem("registrations", JSON.stringify(registrations));
+    renderMembers();
+  }
+}
+
+function exportCSV() {
+  if (registrations.length === 0) {
+    alert("No registrations to export.");
+    return;
+  }
+  let csv = "Name,Email,Event\n";
+  registrations.forEach(r => {
+    csv += `${r.name},${r.email},${r.event}\n`;
+  });
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "registrations.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById("memberForm").addEventListener("submit", registerStudent);
+
+document.getElementById("logoutLink").addEventListener("click", e => {
+  e.preventDefault();
+  localStorage.clear();
+  window.location.href = "login.html";
+});
+</script>
+</body>
+</html>
+
+
+-->
+
+<!--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Club Members | Register</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+<h1>👥 Club Members</h1>
+<nav>
+<a href="index.html">Home</a>
+<a href="my_registration.html">My Registrations</a>
+<a href="#" id="logoutLink">Logout</a>
+</nav>
+</header>
+
+<main>
+<section id="formSection">
+<h2>Register for Event</h2>
+<form id="memberForm">
+<input type="text" id="memberName" placeholder="Full Name" required>
+<input type="email" id="memberEmail" placeholder="Email Address" required>
+<input type="text" id="eventName" placeholder="Event Name" readonly required>
+<button type="submit">✅ Register</button>
+</form>
+<p id="successMsg"></p>
+</section>
+</main>
+
+<script>
+const role = localStorage.getItem("role") || "user";
+const email = localStorage.getItem("userEmail");
+const eventName = new URLSearchParams(window.location.search).get("event");
+
+if (eventName) document.getElementById("eventName").value = eventName;
+
+document.getElementById("memberEmail").value = email;
+
+let registrations = JSON.parse(localStorage.getItem("registrations")) || [];
+
+document.getElementById("memberForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const name = document.getElementById("memberName").value;
+    const email = document.getElementById("memberEmail").value;
+    const event = document.getElementById("eventName").value;
+
+    registrations.push({ name, email, event });
+    localStorage.setItem("registrations", JSON.stringify(registrations));
+
+    document.getElementById("successMsg").textContent = `✅ ${name}, you are registered for ${event}`;
+    this.reset();
+});
+document.getElementById("logoutLink").addEventListener("click", function(e) {
+    e.preventDefault();
+    localStorage.clear();
+    window.location.href = "login.html";
+});
+</script>
+</body>
+</html>
+-->
+
+
+<!--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register for Event</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="my_registration.html">My Registration</a>
+    <a href="login.html" onclick="logout()">Logout</a>
+  </nav>
+
+  <main>
+    <h1>📝 Event Registration</h1>
+    <form id="registerForm" class="card">
+      <label>Event Name</label>
+      <input type="text" id="eventName" readonly>
+
+      <label>Your Name</label>
+      <input type="text" id="studentName" required>
+
+      <button type="submit">Register</button>
+    </form>
+  </main>
+
+  <script>
+    function logout(){ localStorage.clear(); }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedEvent = urlParams.get("event");
+    document.getElementById("eventName").value = selectedEvent;
+
+    document.getElementById("registerForm").addEventListener("submit", function(e){
+      e.preventDefault();
+
+      const studentEmail = localStorage.getItem("userEmail");
+      let registrations = JSON.parse(localStorage.getItem("registrations")) || [];
+
+      const newReg = {
+        student: document.getElementById("studentName").value,
+        email: studentEmail,
+        event: selectedEvent
+      };
+
+      registrations.push(newReg);
+      localStorage.setItem("registrations", JSON.stringify(registrations));
+
+      alert("🎉 Registered successfully!");
+      window.location.href = "my_registration.html";
+    });
+  </script>
+</body>
+</html>
+-->
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Registration | Club Portal</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f7fa;
+    }
+    header {
+      background: #343a40;
+      color: white;
+      padding: 10px;
+    }
+    header h1 { margin: 0; }
+    nav a {
+      color: white;
+      margin-right: 15px;
+      text-decoration: none;
+    }
+    nav a:hover { text-decoration: underline; }
+    .card {
+      max-width: 500px;
+      margin: 50px auto;
+    }
+  </style>
+</head>
+<body>
+
+<header class="d-flex justify-content-between align-items-center">
+  <h1>📝 Event Registration</h1>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="my_registration.html">My Registrations</a>
+    <a href="#" id="logoutLink">Logout</a>
+  </nav>
+</header>
+
+<main class="container">
+  <div class="card shadow p-4">
+    <h3 id="eventTitle"></h3>
+    <form id="registrationForm">
+      <div class="mb-3">
+        <label class="form-label">Your Name</label>
+        <input type="text" id="studentName" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" id="studentEmail" class="form-control" required>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">✅ Confirm Registration</button>
+    </form>
+  </div>
+</main>
+
+<script>
+// Ensure student is logged in
+const role = localStorage.getItem("role");
+if (role !== "user") {
+  alert("Please login as a student first!");
+  window.location.href = "login.html";
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+const eventName = urlParams.get("event");
+document.getElementById("eventTitle").textContent = `Register for: ${eventName}`;
+
+const form = document.getElementById("registrationForm");
+form.addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  const name = document.getElementById("studentName").value;
+  const email = document.getElementById("studentEmail").value;
+
+  let registrations = JSON.parse(localStorage.getItem("registrations")) || [];
+
+  // Prevent duplicate registration
+  if (registrations.some(r => r.email === email && r.event === eventName)) {
+    alert("You have already registered for this event!");
+    window.location.href = "my_registration.html";
+    return;
+  }
+
+  registrations.push({ name, email, event: eventName });
+  localStorage.setItem("registrations", JSON.stringify(registrations));
+
+  alert("✅ Registration successful!");
+  window.location.href = "my_registration.html";
+});
+
+// Logout
+document.getElementById("logoutLink").addEventListener("click", function(e) {
+  e.preventDefault();
+  localStorage.clear();
+  window.location.href = "login.html";
+});
+</script>
+
+</body>
+</html>
